@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Generator - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text { background: linear-gradient(45deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .typing-animation { border-right: 2px solid #8b5cf6; animation: typing 1s infinite; }
+        @keyframes typing { 0%, 50% { border-color: transparent; } 51%, 100% { border-color: #8b5cf6; } }
+        .generate-glow { box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold gradient-text mb-4">🤖 AI Content Generator</h1>
+            <p class="text-xl text-gray-300">Multi-modal AI system for generating text, images, and code</p>
+        </header>
+
+        <!-- Content Type Selector -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-gray-800 rounded-lg p-2 flex space-x-2">
+                <button onclick="switchMode('text')" id="textBtn" class="px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-purple-600 text-white">
+                    📝 Text
+                </button>
+                <button onclick="switchMode('image')" id="imageBtn" class="px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-gray-400 hover:text-white">
+                    🎨 Image
+                </button>
+                <button onclick="switchMode('code')" id="codeBtn" class="px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-gray-400 hover:text-white">
+                    💻 Code
+                </button>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Input Panel -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-purple-500">
+                <h2 class="text-2xl font-bold text-purple-400 mb-4">✨ Input Prompt</h2>
+                
+                <!-- Text Mode -->
+                <div id="textMode" class="content-mode">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Content Type</label>
+                        <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500">
+                            <option>Blog Post</option>
+                            <option>Social Media Caption</option>
+                            <option>Product Description</option>
+                            <option>Email Newsletter</option>
+                            <option>Creative Story</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Topic/Prompt</label>
+                        <textarea id="textPrompt" rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 resize-none" placeholder="Enter your topic or prompt here...">The future of artificial intelligence in creative industries</textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Tone</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>Professional</option>
+                                <option>Casual</option>
+                                <option>Creative</option>
+                                <option>Technical</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Length</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>Short (100-200 words)</option>
+                                <option>Medium (300-500 words)</option>
+                                <option>Long (600-1000 words)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Mode -->
+                <div id="imageMode" class="content-mode hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Image Style</label>
+                        <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500">
+                            <option>Photorealistic</option>
+                            <option>Digital Art</option>
+                            <option>Oil Painting</option>
+                            <option>Anime/Manga</option>
+                            <option>Abstract</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Description</label>
+                        <textarea rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 resize-none" placeholder="Describe the image you want to generate...">A futuristic cityscape at sunset with flying cars and neon lights</textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Resolution</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>512x512</option>
+                                <option>768x768</option>
+                                <option>1024x1024</option>
+                                <option>1920x1080</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Quality</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>Standard</option>
+                                <option>High</option>
+                                <option>Ultra</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Mode -->
+                <div id="codeMode" class="content-mode hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Programming Language</label>
+                        <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500">
+                            <option>JavaScript</option>
+                            <option>Python</option>
+                            <option>React</option>
+                            <option>HTML/CSS</option>
+                            <option>Node.js</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-300 font-medium mb-2">Code Description</label>
+                        <textarea rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 resize-none" placeholder="Describe what you want the code to do...">Create a responsive navigation bar with dropdown menus</textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Complexity</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>Beginner</option>
+                                <option>Intermediate</option>
+                                <option>Advanced</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">Include Comments</label>
+                            <select class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="generateContent()" class="w-full bg-gradient-to-r from-purple-600 to-cyan-600 px-6 py-4 rounded-lg font-bold text-white hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 generate-glow">
+                    🚀 Generate Content
+                </button>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-cyan-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-cyan-400">📄 Generated Content</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="copyContent()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+                            📋 Copy
+                        </button>
+                        <button onclick="downloadContent()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+                            💾 Download
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="outputContent" class="bg-gray-900 rounded-lg p-4 min-h-96 border border-gray-700">
+                    <div class="text-gray-400 text-center py-12">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <p>Click "Generate Content" to see AI-powered results here</p>
+                    </div>
+                </div>
+
+                <!-- Generation Stats -->
+                <div class="mt-4 grid grid-cols-3 gap-4 text-sm">
+                    <div class="bg-gray-700 p-3 rounded text-center">
+                        <div class="text-purple-400 font-bold" id="genTime">0.0s</div>
+                        <div class="text-gray-400">Generation Time</div>
+                    </div>
+                    <div class="bg-gray-700 p-3 rounded text-center">
+                        <div class="text-cyan-400 font-bold" id="wordCount">0</div>
+                        <div class="text-gray-400">Words/Lines</div>
+                    </div>
+                    <div class="bg-gray-700 p-3 rounded text-center">
+                        <div class="text-green-400 font-bold" id="quality">0%</div>
+                        <div class="text-gray-400">Quality Score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Generations -->
+        <div class="mt-8 bg-gray-800 rounded-lg p-6 border border-green-500">
+            <h2 class="text-2xl font-bold text-green-400 mb-4">📚 Recent Generations</h2>
+            <div class="grid md:grid-cols-3 gap-4" id="recentGenerations">
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-purple-400 font-semibold">📝 Blog Post</span>
+                        <span class="text-gray-400 text-xs">2 min ago</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">AI in Creative Industries</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-cyan-400 font-semibold">🎨 Image</span>
+                        <span class="text-gray-400 text-xs">5 min ago</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">Futuristic Cityscape</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-green-400 font-semibold">💻 Code</span>
+                        <span class="text-gray-400 text-xs">8 min ago</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">React Navigation Component</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'text';
+        let generationHistory = [];
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+                btn.className = 'px-6 py-3 rounded-lg font-semibold transition-all duration-300 text-gray-400 hover:text-white';
+            });
+            document.getElementById(mode + 'Btn').className = 'px-6 py-3 rounded-lg font-semibold transition-all duration-300 bg-purple-600 text-white';
+            
+            // Show/hide content modes
+            document.querySelectorAll('.content-mode').forEach(el => el.classList.add('hidden'));
+            document.getElementById(mode + 'Mode').classList.remove('hidden');
+            
+            // Clear output
+            document.getElementById('outputContent').innerHTML = `
+                <div class="text-gray-400 text-center py-12">
+                    <div class="text-4xl mb-4">🤖</div>
+                    <p>Click "Generate Content" to see AI-powered results here</p>
+                </div>
+            `;
+        }
+
+        function generateContent() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Generating...';
+            button.disabled = true;
+            
+            const outputDiv = document.getElementById('outputContent');
+            outputDiv.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="text-4xl mb-4 animate-spin">🤖</div>
+                    <p class="text-gray-400">AI is generating your content...</p>
+                    <div class="mt-4 w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-purple-600 to-cyan-600 h-2 rounded-full animate-pulse" style="width: 0%" id="progressBar"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
+            }, 200);
+            
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                
+                let content = '';
+                let wordCount = 0;
+                
+                if (currentMode === 'text') {
+                    content = generateTextContent();
+                    wordCount = content.split(' ').length;
+                } else if (currentMode === 'image') {
+                    content = generateImageContent();
+                    wordCount = 1;
+                } else if (currentMode === 'code') {
+                    content = generateCodeContent();
+                    wordCount = content.split('\n').length;
+                }
+                
+                outputDiv.innerHTML = content;
+                
+                // Update stats
+                const genTime = (Math.random() * 3 + 1).toFixed(1);
+                const quality = Math.floor(Math.random() * 20 + 80);
+                
+                document.getElementById('genTime').textContent = genTime + 's';
+                document.getElementById('wordCount').textContent = wordCount;
+                document.getElementById('quality').textContent = quality + '%';
+                
+                // Add to history
+                addToHistory(currentMode, genTime);
+                
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
+        }
+
+        function generateTextContent() {
+            return `
+                <div class="prose prose-invert max-w-none">
+                    <h3 class="text-xl font-bold text-white mb-4">The Future of Artificial Intelligence in Creative Industries</h3>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        Artificial Intelligence is revolutionizing creative industries in unprecedented ways, transforming how we approach content creation, design, and artistic expression. From automated video editing to AI-generated music compositions, the creative landscape is experiencing a paradigm shift that promises both exciting opportunities and unique challenges.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        In the realm of visual arts, AI tools like DALL-E, Midjourney, and Stable Diffusion have democratized image creation, allowing anyone to generate stunning visuals from simple text prompts. This technology is not replacing human creativity but rather augmenting it, providing artists with new tools to explore ideas and iterate rapidly on concepts.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        The writing industry has seen similar transformations with large language models capable of generating coherent, contextually relevant content across various formats. However, the true value lies in the collaboration between human creativity and AI efficiency, where technology handles routine tasks while humans focus on strategy, emotion, and authentic storytelling.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed">
+                        As we move forward, the key to success in AI-enhanced creative industries will be understanding how to leverage these tools while maintaining the human touch that makes content truly resonate with audiences. The future belongs to creators who can seamlessly blend artificial intelligence with authentic human insight.
+                    </p>
+                </div>
+            `;
+        }
+
+        function generateImageContent() {
+            return `
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900 rounded-lg p-8 mb-4" style="height: 300px; position: relative; overflow: hidden;">
+                        <div class="absolute inset-0 bg-black/20"></div>
+                        <div class="relative z-10 h-full flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4">🌆</div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Futuristic Cityscape</h3>
+                                <p class="text-gray-300">AI-Generated Image</p>
+                            </div>
+                        </div>
+                        <!-- Simulated city elements -->
+                        <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-purple-800 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 w-8 h-12 bg-cyan-400 opacity-60 rounded-sm"></div>
+                        <div class="absolute bottom-4 left-16 w-6 h-16 bg-purple-400 opacity-60 rounded-sm"></div>
+                        <div class="absolute bottom-4 right-4 w-10 h-14 bg-pink-400 opacity-60 rounded-sm"></div>
+                        <div class="absolute bottom-4 right-20 w-4 h-10 bg-yellow-400 opacity-60 rounded-sm"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-gray-700 p-3 rounded">
+                            <div class="text-purple-400 font-bold">1024x1024</div>
+                            <div class="text-gray-400">Resolution</div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded">
+                            <div class="text-cyan-400 font-bold">Ultra</div>
+                            <div class="text-gray-400">Quality</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateCodeContent() {
+            return `
+                <div class="bg-gray-900 rounded-lg p-4 font-mono text-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-green-400 font-bold">navigation.jsx</span>
+                        <span class="text-gray-400 text-xs">React Component</span>
+                    </div>
+                    <pre class="text-gray-300 leading-relaxed"><code><span class="text-blue-400">import</span> <span class="text-yellow-400">React</span>, { <span class="text-yellow-400">useState</span> } <span class="text-blue-400">from</span> <span class="text-green-400">'react'</span>;
+
+<span class="text-blue-400">const</span> <span class="text-yellow-400">Navigation</span> = () => {
+  <span class="text-blue-400">const</span> [<span class="text-yellow-400">isOpen</span>, <span class="text-yellow-400">setIsOpen</span>] = <span class="text-yellow-400">useState</span>(<span class="text-orange-400">false</span>);
+
+  <span class="text-blue-400">return</span> (
+    &lt;<span class="text-red-400">nav</span> <span class="text-green-400">className</span>=<span class="text-green-400">"bg-gray-800 shadow-lg"</span>&gt;
+      &lt;<span class="text-red-400">div</span> <span class="text-green-400">className</span>=<span class="text-green-400">"max-w-7xl mx-auto px-4"</span>&gt;
+        &lt;<span class="text-red-400">div</span> <span class="text-green-400">className</span>=<span class="text-green-400">"flex justify-between h-16"</span>&gt;
+          &lt;<span class="text-red-400">div</span> <span class="text-green-400">className</span>=<span class="text-green-400">"flex items-center"</span>&gt;
+            &lt;<span class="text-red-400">h1</span> <span class="text-green-400">className</span>=<span class="text-green-400">"text-xl font-bold text-white"</span>&gt;
+              Logo
+            &lt;/<span class="text-red-400">h1</span>&gt;
+          &lt;/<span class="text-red-400">div</span>&gt;
+          
+          <span class="text-gray-500">// Desktop Menu</span>
+          &lt;<span class="text-red-400">div</span> <span class="text-green-400">className</span>=<span class="text-green-400">"hidden md:flex space-x-8"</span>&gt;
+            &lt;<span class="text-red-400">a</span> <span class="text-green-400">href</span>=<span class="text-green-400">"#"</span> <span class="text-green-400">className</span>=<span class="text-green-400">"text-gray-300 hover:text-white"</span>&gt;
+              Home
+            &lt;/<span class="text-red-400">a</span>&gt;
+            &lt;<span class="text-red-400">a</span> <span class="text-green-400">href</span>=<span class="text-green-400">"#"</span> <span class="text-green-400">className</span>=<span class="text-green-400">"text-gray-300 hover:text-white"</span>&gt;
+              About
+            &lt;/<span class="text-red-400">a</span>&gt;
+            &lt;<span class="text-red-400">a</span> <span class="text-green-400">href</span>=<span class="text-green-400">"#"</span> <span class="text-green-400">className</span>=<span class="text-green-400">"text-gray-300 hover:text-white"</span>&gt;
+              Contact
+            &lt;/<span class="text-red-400">a</span>&gt;
+          &lt;/<span class="text-red-400">div</span>&gt;
+        &lt;/<span class="text-red-400">div</span>&gt;
+      &lt;/<span class="text-red-400">div</span>&gt;
+    &lt;/<span class="text-red-400">nav</span>&gt;
+  );
+};
+
+<span class="text-blue-400">export default</span> <span class="text-yellow-400">Navigation</span>;</code></pre>
+                </div>
+            `;
+        }
+
+        function addToHistory(type, time) {
+            const icons = { text: '📝', image: '🎨', code: '💻' };
+            const colors = { text: 'purple', image: 'cyan', code: 'green' };
+            
+            const historyItem = {
+                type: type,
+                icon: icons[type],
+                color: colors[type],
+                time: 'Just now',
+                title: type === 'text' ? 'AI in Creative Industries' : 
+                       type === 'image' ? 'Futuristic Cityscape' : 
+                       'React Navigation Component'
+            };
+            
+            generationHistory.unshift(historyItem);
+            if (generationHistory.length > 3) {
+                generationHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('recentGenerations');
+            container.innerHTML = generationHistory.map(item => `
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-${item.color}-400 font-semibold">${item.icon} ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
+                        <span class="text-gray-400 text-xs">${item.time}</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">${item.title}</p>
+                </div>
+            `).join('');
+        }
+
+        function copyContent() {
+            const content = document.getElementById('outputContent').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadContent() {
+            const content = document.getElementById('outputContent').innerText;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ai-generated-${currentMode}-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

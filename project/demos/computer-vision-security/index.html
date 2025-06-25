@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Vision Security System - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap');
+        body { font-family: 'Source Code Pro', monospace; }
+        .security-glow { box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
+        .detection-box {
+            position: absolute;
+            border: 2px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            animation: pulse-detection 1s infinite;
+        }
+        @keyframes pulse-detection {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .alert-blink { animation: alert-blink 0.5s infinite; }
+        @keyframes alert-blink {
+            0%, 100% { background-color: #ef4444; }
+            50% { background-color: #dc2626; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-red-400 mb-4">🔒 Computer Vision Security System</h1>
+            <p class="text-lg text-gray-300">AI-powered real-time threat detection and monitoring</p>
+        </header>
+
+        <!-- System Status -->
+        <div class="grid lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6 border border-green-500">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-green-400">System Status</h3>
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <p class="text-2xl font-bold text-white">ACTIVE</p>
+                <p class="text-sm text-gray-400">All cameras operational</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 border border-blue-500">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-blue-400">Cameras</h3>
+                    <span class="text-blue-400">📹</span>
+                </div>
+                <p class="text-2xl font-bold text-white">8/8</p>
+                <p class="text-sm text-gray-400">Online and recording</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 border border-yellow-500">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-yellow-400">Detections</h3>
+                    <span class="text-yellow-400">👁️</span>
+                </div>
+                <p class="text-2xl font-bold text-white" id="detectionCount">247</p>
+                <p class="text-sm text-gray-400">Today</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 border border-red-500">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-bold text-red-400">Alerts</h3>
+                    <span class="text-red-400">⚠️</span>
+                </div>
+                <p class="text-2xl font-bold text-white" id="alertCount">3</p>
+                <p class="text-sm text-gray-400">Active threats</p>
+            </div>
+        </div>
+
+        <!-- Live Camera Feeds -->
+        <div class="grid lg:grid-cols-2 gap-8 mb-8">
+            <!-- Main Camera Feed -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-cyan-500">
+                <h2 class="text-xl font-bold text-cyan-400 mb-4">📹 Camera 01 - Main Entrance</h2>
+                <div class="relative bg-black rounded-lg overflow-hidden" style="height: 300px;">
+                    <video id="mainFeed" class="w-full h-full object-cover" autoplay muted loop>
+                        <source src="data:video/mp4;base64," type="video/mp4">
+                    </video>
+                    <!-- Simulated detection overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
+                    <div class="absolute bottom-4 left-4 bg-black/70 rounded px-3 py-1">
+                        <span class="text-green-400 text-sm font-bold">● LIVE</span>
+                    </div>
+                    <div class="absolute top-4 right-4 bg-red-600/90 rounded px-3 py-1 alert-blink">
+                        <span class="text-white text-sm font-bold">⚠️ MOTION DETECTED</span>
+                    </div>
+                    <!-- Detection boxes -->
+                    <div class="detection-box" style="top: 30%; left: 20%; width: 15%; height: 25%;">
+                        <div class="absolute -top-6 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                            Person (97%)
+                        </div>
+                    </div>
+                    <div class="detection-box" style="top: 40%; left: 60%; width: 12%; height: 20%;">
+                        <div class="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                            Vehicle (89%)
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
+                    <div class="bg-gray-700 p-2 rounded text-center">
+                        <div class="text-green-400 font-bold">2</div>
+                        <div class="text-gray-400">Persons</div>
+                    </div>
+                    <div class="bg-gray-700 p-2 rounded text-center">
+                        <div class="text-blue-400 font-bold">1</div>
+                        <div class="text-gray-400">Vehicles</div>
+                    </div>
+                    <div class="bg-gray-700 p-2 rounded text-center">
+                        <div class="text-red-400 font-bold">0</div>
+                        <div class="text-gray-400">Threats</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Dashboard -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-red-500 security-glow">
+                <h2 class="text-xl font-bold text-red-400 mb-4">🚨 Security Dashboard</h2>
+                
+                <!-- Recent Alerts -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-3">Recent Alerts</h3>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                        <div class="bg-red-900/50 border border-red-500 rounded p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-red-400 font-bold">Unauthorized Access</p>
+                                    <p class="text-gray-300 text-sm">Camera 03 - Side Gate</p>
+                                </div>
+                                <span class="text-xs text-gray-400">2 min ago</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-900/50 border border-yellow-500 rounded p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-yellow-400 font-bold">Loitering Detected</p>
+                                    <p class="text-gray-300 text-sm">Camera 05 - Parking Lot</p>
+                                </div>
+                                <span class="text-xs text-gray-400">5 min ago</span>
+                            </div>
+                        </div>
+                        <div class="bg-orange-900/50 border border-orange-500 rounded p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-orange-400 font-bold">Suspicious Behavior</p>
+                                    <p class="text-gray-300 text-sm">Camera 01 - Main Entrance</p>
+                                </div>
+                                <span class="text-xs text-gray-400">12 min ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Analysis -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-3">🤖 AI Analysis</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Threat Level</span>
+                            <span class="text-red-400 font-bold">MEDIUM</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Confidence</span>
+                            <span class="text-green-400 font-bold">94.7%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Processing Speed</span>
+                            <span class="text-cyan-400 font-bold">23.4 FPS</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300">Model Accuracy</span>
+                            <span class="text-purple-400 font-bold">97.2%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Grid -->
+        <div class="bg-gray-800 rounded-lg p-6 border border-purple-500 mb-8">
+            <h2 class="text-xl font-bold text-purple-400 mb-4">📱 Camera Grid View</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 01</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 02</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 03</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                    <div class="absolute top-2 right-2 text-red-400 text-xs">⚠️</div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 04</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 05</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                    <div class="absolute top-2 right-2 text-yellow-400 text-xs">⚠️</div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 06</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 07</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <div class="relative bg-black rounded aspect-video">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded flex items-center justify-center">
+                        <span class="text-gray-400">CAM 08</span>
+                    </div>
+                    <div class="absolute top-2 left-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="text-center space-x-4">
+            <button onclick="runFullScan()" class="bg-red-600 hover:bg-red-500 px-8 py-3 rounded-lg font-bold transition-colors duration-300">
+                🔍 Run Full Scan
+            </button>
+            <button onclick="exportReport()" class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg font-bold transition-colors duration-300">
+                📊 Export Report
+            </button>
+            <button onclick="toggleAlerts()" id="alertToggle" class="bg-yellow-600 hover:bg-yellow-500 px-6 py-3 rounded-lg font-bold transition-colors duration-300">
+                🔔 Mute Alerts
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let alertsMuted = false;
+        let scanRunning = false;
+
+        function runFullScan() {
+            if (scanRunning) return;
+            
+            const button = event.target;
+            button.innerHTML = '⏳ Scanning...';
+            button.disabled = true;
+            scanRunning = true;
+            
+            // Simulate scan progress
+            let progress = 0;
+            const scanInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(scanInterval);
+                    
+                    // Update detection count
+                    const detectionCount = document.getElementById('detectionCount');
+                    const currentCount = parseInt(detectionCount.textContent);
+                    detectionCount.textContent = currentCount + Math.floor(Math.random() * 10) + 5;
+                    
+                    button.innerHTML = '✅ Scan Complete';
+                    setTimeout(() => {
+                        button.innerHTML = '🔍 Run Full Scan';
+                        button.disabled = false;
+                        scanRunning = false;
+                    }, 2000);
+                } else {
+                    button.innerHTML = `⏳ Scanning... ${Math.floor(progress)}%`;
+                }
+            }, 500);
+        }
+
+        function exportReport() {
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                systemStatus: 'ACTIVE',
+                camerasOnline: '8/8',
+                detectionsToday: document.getElementById('detectionCount').textContent,
+                activeAlerts: document.getElementById('alertCount').textContent,
+                threatLevel: 'MEDIUM',
+                confidence: '94.7%',
+                processingSpeed: '23.4 FPS',
+                modelAccuracy: '97.2%'
+            };
+            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'security-report.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleAlerts() {
+            alertsMuted = !alertsMuted;
+            const button = document.getElementById('alertToggle');
+            
+            if (alertsMuted) {
+                button.innerHTML = '🔕 Unmute Alerts';
+                button.className = 'bg-gray-600 hover:bg-gray-500 px-6 py-3 rounded-lg font-bold transition-colors duration-300';
+            } else {
+                button.innerHTML = '🔔 Mute Alerts';
+                button.className = 'bg-yellow-600 hover:bg-yellow-500 px-6 py-3 rounded-lg font-bold transition-colors duration-300';
+            }
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // Update detection count
+            const detectionCount = document.getElementById('detectionCount');
+            const currentCount = parseInt(detectionCount.textContent);
+            if (Math.random() < 0.3) {
+                detectionCount.textContent = currentCount + 1;
+            }
+            
+            // Randomly add new alerts
+            if (Math.random() < 0.1) {
+                const alertCount = document.getElementById('alertCount');
+                const currentAlerts = parseInt(alertCount.textContent);
+                alertCount.textContent = Math.min(currentAlerts + 1, 5);
+            }
+        }, 5000);
+
+        // Create a simple video placeholder
+        function createVideoPlaceholder() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 360;
+            const ctx = canvas.getContext('2d');
+            
+            // Create animated background
+            let frame = 0;
+            function animate() {
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Add some moving elements to simulate camera feed
+                ctx.fillStyle = '#333';
+                ctx.fillRect(50 + Math.sin(frame * 0.02) * 20, 100, 100, 150);
+                ctx.fillRect(400 + Math.cos(frame * 0.015) * 30, 150, 80, 120);
+                
+                frame++;
+                requestAnimationFrame(animate);
+            }
+            animate();
+            
+            // Convert canvas to video-like stream
+            const stream = canvas.captureStream(30);
+            const video = document.getElementById('mainFeed');
+            if (video) {
+                video.srcObject = stream;
+            }
+        }
+
+        // Initialize video placeholder
+        createVideoPlaceholder();
+    </script>
+</body>
+</html>

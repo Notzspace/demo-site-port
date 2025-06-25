@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gaming Assistant - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        body { font-family: 'Orbitron', monospace; }
+        .glow { box-shadow: 0 0 20px rgba(0, 245, 255, 0.5); }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 245, 255, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 245, 255, 0.8); }
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-cyan-400 mb-4">AI Gaming Assistant</h1>
+            <p class="text-xl text-gray-300">Your intelligent gaming companion powered by machine learning</p>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Game Analysis Panel -->
+            <div class="bg-gray-900 rounded-lg p-6 border border-cyan-500 glow">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-4">🎮 Game Analysis</h2>
+                <div class="space-y-4">
+                    <div class="bg-gray-800 p-4 rounded">
+                        <h3 class="text-lg font-semibold text-green-400">Current Game: Valorant</h3>
+                        <p class="text-gray-300">Analyzing gameplay patterns...</p>
+                        <div class="mt-2 bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-400 h-2 rounded-full w-3/4 pulse-glow"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-800 p-3 rounded text-center">
+                            <div class="text-2xl font-bold text-cyan-400">87%</div>
+                            <div class="text-sm text-gray-400">Accuracy</div>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded text-center">
+                            <div class="text-2xl font-bold text-purple-400">2.3</div>
+                            <div class="text-sm text-gray-400">K/D Ratio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="bg-gray-900 rounded-lg p-6 border border-purple-500 glow">
+                <h2 class="text-2xl font-bold text-purple-400 mb-4">🤖 AI Recommendations</h2>
+                <div class="space-y-3">
+                    <div class="bg-gray-800 p-3 rounded border-l-4 border-green-400">
+                        <p class="text-green-400 font-semibold">Crosshair Placement</p>
+                        <p class="text-gray-300 text-sm">Keep crosshair at head level - 23% improvement potential</p>
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border-l-4 border-yellow-400">
+                        <p class="text-yellow-400 font-semibold">Map Control</p>
+                        <p class="text-gray-300 text-sm">Focus on mid control - increases win rate by 15%</p>
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border-l-4 border-blue-400">
+                        <p class="text-blue-400 font-semibold">Economy Management</p>
+                        <p class="text-gray-300 text-sm">Save on round 3 - optimal buy strategy detected</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Dashboard -->
+        <div class="mt-8 bg-gray-900 rounded-lg p-6 border border-cyan-500">
+            <h2 class="text-2xl font-bold text-cyan-400 mb-6">📊 Performance Dashboard</h2>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="bg-gray-800 p-4 rounded text-center">
+                    <div class="text-3xl font-bold text-green-400">↗️ 12%</div>
+                    <div class="text-gray-400">Win Rate Improvement</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded text-center">
+                    <div class="text-3xl font-bold text-blue-400">247</div>
+                    <div class="text-gray-400">Games Analyzed</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded text-center">
+                    <div class="text-3xl font-bold text-purple-400">89%</div>
+                    <div class="text-gray-400">Prediction Accuracy</div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded text-center">
+                    <div class="text-3xl font-bold text-cyan-400">A+</div>
+                    <div class="text-gray-400">Overall Grade</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo -->
+        <div class="mt-8 text-center">
+            <button onclick="simulateAnalysis()" class="bg-gradient-to-r from-cyan-500 to-purple-600 px-8 py-4 rounded-lg font-bold text-white hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105">
+                🔄 Run New Analysis
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function simulateAnalysis() {
+            const button = event.target;
+            button.innerHTML = '⏳ Analyzing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                // Update random stats
+                const accuracy = Math.floor(Math.random() * 20) + 80;
+                const kd = (Math.random() * 2 + 1).toFixed(1);
+                
+                document.querySelector('.text-cyan-400.text-2xl').textContent = accuracy + '%';
+                document.querySelector('.text-purple-400.text-2xl').textContent = kd;
+                
+                button.innerHTML = '✅ Analysis Complete!';
+                
+                setTimeout(() => {
+                    button.innerHTML = '🔄 Run New Analysis';
+                    button.disabled = false;
+                }, 2000);
+            }, 3000);
+        }
+
+        // Auto-update stats every 5 seconds
+        setInterval(() => {
+            const elements = document.querySelectorAll('.pulse-glow');
+            elements.forEach(el => {
+                el.style.width = Math.floor(Math.random() * 30 + 70) + '%';
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

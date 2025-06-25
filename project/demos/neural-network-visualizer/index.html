@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Visualizer - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+        body { font-family: 'Roboto Mono', monospace; }
+        .node { cursor: pointer; }
+        .link { stroke: #999; stroke-opacity: 0.6; }
+        .node circle { stroke: #fff; stroke-width: 1.5px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-purple-400 mb-4">🧠 Neural Network Visualizer</h1>
+            <p class="text-lg text-gray-300">Interactive visualization of neural network architectures</p>
+        </header>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Control Panel -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-purple-500">
+                <h2 class="text-xl font-bold text-purple-400 mb-4">🎛️ Network Configuration</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Input Layer</label>
+                        <input type="range" id="inputNodes" min="2" max="10" value="4" class="w-full">
+                        <span id="inputValue" class="text-cyan-400 font-bold">4 nodes</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Hidden Layers</label>
+                        <input type="range" id="hiddenLayers" min="1" max="5" value="2" class="w-full">
+                        <span id="hiddenValue" class="text-cyan-400 font-bold">2 layers</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Output Layer</label>
+                        <input type="range" id="outputNodes" min="1" max="5" value="2" class="w-full">
+                        <span id="outputValue" class="text-cyan-400 font-bold">2 nodes</span>
+                    </div>
+                    <button onclick="generateNetwork()" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 px-4 py-2 rounded font-bold hover:from-purple-400 hover:to-pink-500 transition-all duration-300">
+                        🔄 Generate Network
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="lg:col-span-2 bg-gray-800 rounded-lg p-6 border border-cyan-500">
+                <h2 class="text-xl font-bold text-cyan-400 mb-4">📊 Network Visualization</h2>
+                <div id="network-viz" class="w-full h-96 bg-gray-900 rounded border"></div>
+            </div>
+        </div>
+
+        <!-- Training Panel -->
+        <div class="mt-6 bg-gray-800 rounded-lg p-6 border border-green-500">
+            <h2 class="text-xl font-bold text-green-400 mb-4">🏋️ Training Dashboard</h2>
+            <div class="grid md:grid-cols-4 gap-4 mb-4">
+                <div class="bg-gray-900 p-4 rounded text-center">
+                    <div class="text-2xl font-bold text-green-400" id="epoch">0</div>
+                    <div class="text-gray-400">Epoch</div>
+                </div>
+                <div class="bg-gray-900 p-4 rounded text-center">
+                    <div class="text-2xl font-bold text-blue-400" id="loss">1.000</div>
+                    <div class="text-gray-400">Loss</div>
+                </div>
+                <div class="bg-gray-900 p-4 rounded text-center">
+                    <div class="text-2xl font-bold text-purple-400" id="accuracy">0%</div>
+                    <div class="text-gray-400">Accuracy</div>
+                </div>
+                <div class="bg-gray-900 p-4 rounded text-center">
+                    <div class="text-2xl font-bold text-cyan-400" id="lr">0.001</div>
+                    <div class="text-gray-400">Learning Rate</div>
+                </div>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="startTraining()" id="trainBtn" class="bg-green-500 hover:bg-green-400 px-6 py-2 rounded font-bold transition-colors duration-300">
+                    ▶️ Start Training
+                </button>
+                <button onclick="stopTraining()" id="stopBtn" class="bg-red-500 hover:bg-red-400 px-6 py-2 rounded font-bold transition-colors duration-300" disabled>
+                    ⏹️ Stop Training
+                </button>
+                <button onclick="resetNetwork()" class="bg-gray-600 hover:bg-gray-500 px-6 py-2 rounded font-bold transition-colors duration-300">
+                    🔄 Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trainingInterval;
+        let currentEpoch = 0;
+        let currentLoss = 1.0;
+        let currentAccuracy = 0;
+
+        // Initialize network visualization
+        function generateNetwork() {
+            const inputNodes = parseInt(document.getElementById('inputNodes').value);
+            const hiddenLayers = parseInt(document.getElementById('hiddenLayers').value);
+            const outputNodes = parseInt(document.getElementById('outputNodes').value);
+            
+            // Clear previous visualization
+            d3.select("#network-viz").selectAll("*").remove();
+            
+            const svg = d3.select("#network-viz")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("viewBox", "0 0 800 400");
+
+            // Create network structure
+            const layers = [inputNodes];
+            for (let i = 0; i < hiddenLayers; i++) {
+                layers.push(Math.max(3, Math.floor(inputNodes * 0.7)));
+            }
+            layers.push(outputNodes);
+
+            // Draw network
+            drawNetwork(svg, layers);
+        }
+
+        function drawNetwork(svg, layers) {
+            const width = 800;
+            const height = 400;
+            const layerSpacing = width / (layers.length + 1);
+            
+            // Draw connections first
+            for (let i = 0; i < layers.length - 1; i++) {
+                const currentLayerSize = layers[i];
+                const nextLayerSize = layers[i + 1];
+                
+                for (let j = 0; j < currentLayerSize; j++) {
+                    for (let k = 0; k < nextLayerSize; k++) {
+                        const x1 = layerSpacing * (i + 1);
+                        const y1 = (height / (currentLayerSize + 1)) * (j + 1);
+                        const x2 = layerSpacing * (i + 2);
+                        const y2 = (height / (nextLayerSize + 1)) * (k + 1);
+                        
+                        svg.append("line")
+                            .attr("x1", x1)
+                            .attr("y1", y1)
+                            .attr("x2", x2)
+                            .attr("y2", y2)
+                            .attr("stroke", "#4a5568")
+                            .attr("stroke-width", 1)
+                            .attr("opacity", 0.3);
+                    }
+                }
+            }
+            
+            // Draw nodes
+            layers.forEach((layerSize, layerIndex) => {
+                for (let nodeIndex = 0; nodeIndex < layerSize; nodeIndex++) {
+                    const x = layerSpacing * (layerIndex + 1);
+                    const y = (height / (layerSize + 1)) * (nodeIndex + 1);
+                    
+                    let color = "#6b7280";
+                    if (layerIndex === 0) color = "#06b6d4"; // Input layer - cyan
+                    else if (layerIndex === layers.length - 1) color = "#8b5cf6"; // Output layer - purple
+                    else color = "#10b981"; // Hidden layers - green
+                    
+                    svg.append("circle")
+                        .attr("cx", x)
+                        .attr("cy", y)
+                        .attr("r", 15)
+                        .attr("fill", color)
+                        .attr("stroke", "#ffffff")
+                        .attr("stroke-width", 2)
+                        .style("cursor", "pointer")
+                        .on("mouseover", function() {
+                            d3.select(this).attr("r", 18);
+                        })
+                        .on("mouseout", function() {
+                            d3.select(this).attr("r", 15);
+                        });
+                }
+            });
+        }
+
+        function startTraining() {
+            document.getElementById('trainBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            trainingInterval = setInterval(() => {
+                currentEpoch++;
+                currentLoss = Math.max(0.001, currentLoss * 0.95 + Math.random() * 0.1 - 0.05);
+                currentAccuracy = Math.min(100, currentAccuracy + Math.random() * 5);
+                
+                document.getElementById('epoch').textContent = currentEpoch;
+                document.getElementById('loss').textContent = currentLoss.toFixed(3);
+                document.getElementById('accuracy').textContent = Math.floor(currentAccuracy) + '%';
+                
+                // Animate network connections
+                d3.selectAll("line")
+                    .transition()
+                    .duration(500)
+                    .attr("stroke", () => {
+                        const colors = ["#06b6d4", "#8b5cf6", "#10b981", "#f59e0b"];
+                        return colors[Math.floor(Math.random() * colors.length)];
+                    })
+                    .attr("opacity", Math.random() * 0.8 + 0.2);
+                    
+            }, 1000);
+        }
+
+        function stopTraining() {
+            clearInterval(trainingInterval);
+            document.getElementById('trainBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        function resetNetwork() {
+            stopTraining();
+            currentEpoch = 0;
+            currentLoss = 1.0;
+            currentAccuracy = 0;
+            
+            document.getElementById('epoch').textContent = '0';
+            document.getElementById('loss').textContent = '1.000';
+            document.getElementById('accuracy').textContent = '0%';
+            
+            generateNetwork();
+        }
+
+        // Update slider values
+        document.getElementById('inputNodes').addEventListener('input', function() {
+            document.getElementById('inputValue').textContent = this.value + ' nodes';
+        });
+        
+        document.getElementById('hiddenLayers').addEventListener('input', function() {
+            document.getElementById('hiddenValue').textContent = this.value + ' layers';
+        });
+        
+        document.getElementById('outputNodes').addEventListener('input', function() {
+            document.getElementById('outputValue').textContent = this.value + ' nodes';
+        });
+
+        // Initialize on load
+        generateNetwork();
+    </script>
+</body>
+</html>
